@@ -32,26 +32,14 @@ export default function Sidebar({ open, setOpen }) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:block lg:w-64 lg:border-r lg:border-b-0 lg:px-4 lg:py-8 bg-white">
-        <div className=" flex flex-col items-start">
-          <div className="flex items-center">
+        <div className="flex flex-col items-start">
+          <div className="flex items-center mb-6">
             <img src="/logo.png" alt="Caasi logo" className="w-28 h-20 object-contain ml-2" />
           </div>
 
-          <div className="mt-6 w-full">
-            <div className="flex justify-start mb-6 pl-2">
-              <Link
-                to={navItems[0].to}
-                className="inline-flex items-center gap-3 bg-[#0b73d8] text-white px-6 py-3 rounded-2xl shadow-sm"
-              >
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
-                  <LayoutDashboard className="h-5 w-5 text-white" />
-                </span>
-                <span className="font-medium">{navItems[0].label}</span>
-              </Link>
-            </div>
-
+          <div className="w-full">
             <nav className="space-y-4 text-sm pl-2">
-              {navItems.slice(1).map((item) => {
+              {navItems.map((item) => {
                 const active = isActive(item.to)
                 const Icon = item.icon
                 return (
@@ -128,4 +116,3 @@ export default function Sidebar({ open, setOpen }) {
     </>
   )
 }
-
