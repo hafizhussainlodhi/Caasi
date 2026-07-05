@@ -187,7 +187,7 @@ export default function ExpenseReport() {
             {/* Top Bar with Filters & Create Button */}
             <div className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-50">
               {/* Filter Dropdown */}
-              <div className="relative">
+              {/* <div className="relative">
                 <button
                   onClick={() => setFilterOpen(!filterOpen)}
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
@@ -226,7 +226,60 @@ export default function ExpenseReport() {
               >
                 <Plus className="h-4 w-4" />
                 <span>Create Expense Report</span>
-              </button>
+              </button> */}
+              <div className="flex items-center justify-between gap-4">
+  {/* Left: Show Entries & Filter */}
+  <div className="flex items-center gap-4">
+    {/* Show Entries Dropdown */}
+    <div className="flex items-center gap-2 text-sm text-slate-600">
+      <span>Show</span>
+      <select 
+        className="border border-slate-200 rounded-lg px-2 py-1 text-sm outline-none cursor-pointer"
+        defaultValue={10}
+      >
+        <option value={10}>10</option>
+        <option value={25}>25</option>
+        <option value={50}>50</option>
+      </select>
+      <span>entries</span>
+    </div>
+
+    {/* Filter Button with Popup */}
+    <div className="relative">
+      <button
+        onClick={() => setFilterOpen(!filterOpen)}
+        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
+      >
+        <Filter className="h-4 w-4 text-slate-500" />
+        <span>Filter</span>
+        <ChevronDown className="h-4 w-4 text-slate-500" />
+      </button>
+
+      {filterOpen && (
+        <div className="absolute left-0 mt-2 w-48 rounded-2xl bg-white border border-slate-100 shadow-xl py-2 z-50">
+          {['Employee', 'Date', 'Expense', 'Category', 'Status', 'Attachement'].map((item) => (
+            <button
+              key={item}
+              className="w-full text-left px-4 py-2.5 text-sm text-slate-600 hover:bg-blue-50 hover:text-[#0b73d8] flex justify-between items-center transition-colors cursor-pointer"
+            >
+              {item}
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Create Button */}
+  <button
+    onClick={() => setIsCreateModalOpen(true)}
+    className="inline-flex items-center gap-2 rounded-xl bg-[#0b73d8] hover:bg-blue-700 text-white px-5 py-2.5 text-sm font-semibold transition-colors shadow-sm cursor-pointer"
+  >
+    <Plus className="h-4 w-4" />
+    <span>Create Expense Report</span>
+  </button>
+</div>
             </div>
 
             {/* Responsive Table Wrapper */}
