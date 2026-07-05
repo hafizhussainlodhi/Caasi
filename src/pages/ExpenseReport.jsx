@@ -93,6 +93,7 @@ export default function ExpenseReport() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('All')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isScanPopupOpen, setIsScanPopupOpen] = useState(false)
 
   // Pagination current page state
   const [currentPage, setCurrentPage] = useState(1)
@@ -174,6 +175,15 @@ export default function ExpenseReport() {
   const openExpenseModal = (employee = '') => {
     setNewEmployee(employee)
     setIsCreateModalOpen(true)
+  }
+
+  const handleScanClick = () => {
+    setIsCreateModalOpen(false)
+    setIsScanPopupOpen(true)
+    setTimeout(() => {
+      setIsScanPopupOpen(false)
+      setIsCreateModalOpen(true)
+    }, 2000)
   }
 
   return (
@@ -568,6 +578,7 @@ export default function ExpenseReport() {
                       </button>
                       <button
                         type="button"
+                        onClick={handleScanClick}
                         className="flex items-center gap-3 rounded-3xl bg-blue-600/5 px-5 py-4 text-slate-900 hover:bg-blue-600/10 transition-colors"
                       >
                         <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0b73d8] text-white">
@@ -602,6 +613,44 @@ export default function ExpenseReport() {
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isScanPopupOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
+              <div className="w-full max-w-3xl rounded-[2rem] bg-white shadow-[0_30px_80px_rgba(15,23,42,0.12)] border border-slate-200 overflow-hidden">
+                <div className="bg-slate-100 px-5 py-4 flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-300 bg-white p-2 text-[#0b73d8]"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <p className="text-lg font-semibold text-slate-900">Receipt Scanner</p>
+                </div>
+                <div className="p-5 md:p-6 bg-slate-100">
+                  <div className="mx-auto max-w-3xl rounded-[2rem] bg-slate-200 p-6 md:p-8">
+                    <div className="mx-auto flex h-64 w-full max-w-2xl items-center justify-center rounded-[2rem] bg-white shadow-sm border border-slate-200">
+                      <div className="relative h-40 w-40 rounded-[1.5rem] border border-slate-200 bg-slate-100">
+                        <div className="absolute inset-0 rounded-[1.5rem] bg-white" />
+                        <div className="absolute left-4 top-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
+                        <div className="absolute right-4 top-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
+                        <div className="absolute left-4 bottom-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
+                        <div className="absolute right-4 bottom-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
+                        <div className="absolute inset-x-0 top-1/2 h-1.5 bg-[#0b73d8] mx-6 rounded-full" />
+                        <div className="absolute inset-x-0 top-1/3 h-0.5 bg-slate-300 mx-6 rounded-full" />
+                        <div className="absolute inset-x-0 top-2/3 h-0.5 bg-slate-300 mx-6 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    <div className="rounded-full bg-slate-200 p-1">
+                      <div className="h-3 rounded-full bg-[#0b73d8] w-1/4 transition-all duration-300" />
+                    </div>
+                    <p className="mt-3 text-center text-sm font-semibold text-slate-600">25%</p>
+                  </div>
                 </div>
               </div>
             </div>
