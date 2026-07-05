@@ -7,49 +7,61 @@ const initialUsers = [
   {
     id: 1,
     name: 'Carlos Fonte',
+    email: 'carlos.fonte@example.com',
     department: 'Engineering',
     role: 'Frontend Engineer',
     status: 'Active',
+    createdDate: '25 April 2024',
     image: '/man.png',
   },
   {
     id: 2,
     name: 'Alice Johnson',
+    email: 'alice.johnson@example.com',
     department: 'Product Design',
     role: 'UI/UX Designer',
     status: 'Active',
+    createdDate: '18 March 2024',
     image: '/man.png',
   },
   {
     id: 3,
     name: 'Robert Carter',
+    email: 'robert.carter@example.com',
     department: 'Marketing',
     role: 'Content Strategist',
     status: 'Pending',
+    createdDate: '12 February 2024',
     image: '/man.png',
   },
   {
     id: 4,
     name: 'Emilio Vance',
+    email: 'emilio.vance@example.com',
     department: 'Engineering',
     role: 'DevOps Specialist',
     status: 'Active',
+    createdDate: '02 January 2024',
     image: '/man.png',
   },
   {
     id: 5,
     name: 'Sophia Martinez',
+    email: 'sophia.martinez@example.com',
     department: 'Human Resources',
     role: 'HR Manager',
     status: 'Inactive',
+    createdDate: '10 April 2024',
     image: '/man.png',
   },
   {
     id: 6,
     name: 'Liam Neilsen',
+    email: 'liam.neilsen@example.com',
     department: 'Sales',
     role: 'Account Executive',
     status: 'Active',
+    createdDate: '03 March 2024',
     image: '/man.png',
   },
 ]
@@ -61,12 +73,22 @@ export default function User() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('All')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
 
   // New user form state
   const [newName, setNewName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
   const [newDept, setNewDept] = useState('Engineering')
   const [newRole, setNewRole] = useState('')
   const [newStatus, setNewStatus] = useState('Active')
+
+  // Edit user form state
+  const [editName, setEditName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editDept, setEditDept] = useState('Engineering')
+  const [editRole, setEditRole] = useState('')
+  const [editStatus, setEditStatus] = useState('Active')
 
   // Filter logic
   const filteredUsers = selectedStatus === 'All'
@@ -93,11 +115,12 @@ export default function User() {
   // Handle create user
   const handleCreateUser = (e) => {
     e.preventDefault()
-    if (!newName.trim() || !newRole.trim()) return
+    if (!newName.trim() || !newRole.trim() || !newEmail.trim()) return
 
     const newUser = {
       id: Date.now(),
       name: newName,
+      email: newEmail,
       department: newDept,
       role: newRole,
       status: newStatus,
@@ -109,9 +132,42 @@ export default function User() {
 
     // Reset form fields
     setNewName('')
+    setNewEmail('')
     setNewRole('')
     setNewDept('Engineering')
     setNewStatus('Active')
+  }
+
+  const openEditModal = (user) => {
+    setEditingUser(user)
+    setEditName(user.name)
+    setEditEmail(user.email || '')
+    setEditDept(user.department)
+    setEditRole(user.role)
+    setEditStatus(user.status)
+    setIsEditModalOpen(true)
+  }
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault()
+    if (!editingUser) return
+
+    const updatedUsers = users.map((user) =>
+      user.id === editingUser.id
+        ? {
+            ...user,
+            name: editName,
+            email: editEmail,
+            department: editDept,
+            role: editRole,
+            status: editStatus,
+          }
+        : user
+    )
+
+    setUsers(updatedUsers)
+    setIsEditModalOpen(false)
+    setEditingUser(null)
   }
 
   return (
@@ -255,7 +311,10 @@ export default function User() {
                             </span>
                           </td>
                           <td className="py-4 px-4 text-center">
-                            <button className="text-slate-400 hover:text-[#0b73d8] transition-colors p-1 rounded-lg hover:bg-slate-100 inline-flex items-center justify-center cursor-pointer">
+                            <button
+                              onClick={() => openEditModal(user)}
+                              className="text-slate-400 hover:text-[#0b73d8] transition-colors p-1 rounded-lg hover:bg-slate-100 inline-flex items-center justify-center cursor-pointer"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
                           </td>
@@ -306,6 +365,21 @@ export default function User() {
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder="e.g. Carlos Fonte"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-[#0b73d8] transition-all outline-none"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="email@example.com"
                       className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-[#0b73d8] transition-all outline-none"
                     />
                   </div>
@@ -376,6 +450,151 @@ export default function User() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {isEditModalOpen && editingUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+              <div
+                className="absolute inset-0 bg-black/25 backdrop-blur-sm"
+                onClick={() => setIsEditModalOpen(false)}
+              />
+
+              <div className="relative w-full max-w-5xl rounded-[2rem] bg-white shadow-2xl border border-slate-200 z-10 overflow-hidden">
+                <div className="grid gap-6 lg:grid-cols-[0.95fr_1.4fr] bg-slate-50 p-6 lg:p-8">
+                  <div className="rounded-[2rem] bg-white p-6 shadow-sm border border-slate-100">
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <img
+                        src={editingUser.image}
+                        alt={editingUser.name}
+                        className="h-44 w-44 rounded-[2rem] object-cover shadow-lg"
+                      />
+                      <div>
+                        <p className="text-xl font-semibold text-slate-900">{editingUser.name}</p>
+                        <p className="text-sm text-slate-500">{editingUser.role}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 space-y-6">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Email Address</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{editingUser.email}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Department</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{editingUser.department}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Status</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{editingUser.status}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[2rem] bg-white p-6 shadow-sm border border-slate-100">
+                    <div className="flex items-start justify-between gap-4 mb-6">
+                      <div>
+                        <p className="text-xl font-bold text-slate-900">Edit Information</p>
+                        <p className="text-sm text-slate-500 mt-1">Update details for the selected user below.</p>
+                      </div>
+                      <button
+                        onClick={() => setIsEditModalOpen(false)}
+                        className="rounded-full border border-slate-200 bg-white p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleSaveEdit} className="grid gap-4 lg:grid-cols-2">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Full Name</label>
+                          <input
+                            type="text"
+                            required
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Email Address</label>
+                          <input
+                            type="email"
+                            required
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Department</label>
+                          <select
+                            value={editDept}
+                            onChange={(e) => setEditDept(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+                          >
+                            <option value="Engineering">Engineering</option>
+                            <option value="Product Design">Product Design</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="Sales">Sales</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Role</label>
+                          <input
+                            type="text"
+                            required
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Status</label>
+                          <select
+                            value={editStatus}
+                            onChange={(e) => setEditStatus(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+                          >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Pending">Pending</option>
+                          </select>
+                        </div>
+
+                        <div className="rounded-3xl bg-slate-50 p-4">
+                          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">User Created</p>
+                          <p className="mt-2 text-sm font-semibold text-slate-900">{editingUser.createdDate || '25 April 2024'}</p>
+                        </div>
+                      </div>
+
+                      <div className="lg:col-span-2 flex items-center justify-end gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditModalOpen(false)}
+                          className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="rounded-2xl bg-[#0b73d8] px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
           )}
