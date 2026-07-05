@@ -329,7 +329,7 @@ export default function User() {
 
           {/* Modal for Creating User */}
           {isCreateModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-4">
               {/* Overlay */}
               <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
@@ -337,7 +337,7 @@ export default function User() {
               />
 
               {/* Modal Content */}
-              <div className="relative bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl border border-slate-100 z-10 transform scale-100 transition-all">
+              <div className="relative mx-auto my-4 bg-white rounded-[2rem] w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-100 z-10 transform scale-100 transition-all">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-2">
                     <div className="rounded-xl bg-blue-50 p-2 text-[#0b73d8]">
@@ -455,14 +455,14 @@ export default function User() {
           )}
 
           {isEditModalOpen && editingUser && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-4">
               <div
                 className="absolute inset-0 bg-black/25 backdrop-blur-sm"
                 onClick={() => setIsEditModalOpen(false)}
               />
 
-              <div className="relative w-full max-w-5xl rounded-[2rem] bg-white shadow-2xl border border-slate-200 z-10 overflow-hidden">
-                <div className="grid gap-6 lg:grid-cols-[0.95fr_1.4fr] bg-slate-50 p-6 lg:p-8">
+              <div className="relative mx-auto my-4 w-full max-w-5xl rounded-[2rem] bg-white shadow-2xl border border-slate-200 z-10 max-h-[calc(100vh-2rem)] overflow-y-auto">
+                <div className="grid gap-6 lg:grid-cols-[0.95fr_1.4fr] bg-slate-50 p-4 sm:p-6 lg:p-8">
                   <div className="rounded-[2rem] bg-white p-6 shadow-sm border border-slate-100">
                     <div className="flex flex-col items-center gap-4 text-center">
                       <img
