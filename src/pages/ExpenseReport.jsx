@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Filter, ChevronDown, Plus, Eye, MoreHorizontal, ChevronLeft, ChevronRight, X, DollarSign, FileSpreadsheet, Paperclip, Scan } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Filter, ChevronDown, Plus, Eye, MoreHorizontal, ChevronLeft, ChevronRight, X, DollarSign, FileSpreadsheet, Paperclip, Scan, Trash2, Edit3, RefreshCcw } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import Navbar from '../components/Navbar'
 
@@ -92,8 +92,10 @@ export default function ExpenseReport() {
   const [selectedReports, setSelectedReports] = useState([])
   const [filterOpen, setFilterOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('All')
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isScanPopupOpen, setIsScanPopupOpen] = useState(false)
+  
+  // Unified modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalStep, setModalStep] = useState(0) // 0: Form, 1: Scanner, 2: Preview
 
   // Pagination current page state
   const [currentPage, setCurrentPage] = useState(1)
@@ -161,7 +163,8 @@ export default function ExpenseReport() {
     }
 
     setReports([newReport, ...reports])
-    setIsCreateModalOpen(false)
+    setIsModalOpen(false)
+    setModalStep(0)
 
     // Reset fields
     setNewEmployee('')
@@ -174,15 +177,14 @@ export default function ExpenseReport() {
 
   const openExpenseModal = (employee = '') => {
     setNewEmployee(employee)
-    setIsCreateModalOpen(true)
+    setModalStep(0)
+    setIsModalOpen(true)
   }
 
   const handleScanClick = () => {
-    setIsCreateModalOpen(false)
-    setIsScanPopupOpen(true)
+    setModalStep(1)
     setTimeout(() => {
-      setIsScanPopupOpen(false)
-      setIsCreateModalOpen(true)
+      setModalStep(2)
     }, 2000)
   }
 
@@ -463,195 +465,298 @@ export default function ExpenseReport() {
             </div>
           </section>
 
-          {/* Modal for Creating Expense Report */}
-          {isCreateModalOpen && (
+          {/* Unified 3-Step Modal Flow */}
+          {isModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               {/* Overlay */}
               <div
                 className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                onClick={() => setIsCreateModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false)
+                  setModalStep(0)
+                }}
               />
 
-              <div className="relative w-full max-w-2xl rounded-[2rem] bg-white shadow-2xl border border-slate-200 z-10 overflow-hidden">
-                <div className="p-6 lg:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <button
-                      type="button"
-                      onClick={() => setIsCreateModalOpen(false)}
-                      className="rounded-full border border-slate-200 p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <div>
-                      <h2 className="text-2xl font-bold text-slate-900">Enter expense report</h2>
-                      <p className="text-sm text-slate-500 mt-1">Complete the form below to submit the expense report.</p>
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleCreateReport} className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
+              {/* Fixed Dimension Modal Container */}
+              <div className="relative w-[600px] h-[650px] rounded-[2rem] bg-white shadow-2xl border border-slate-200 z-10 overflow-hidden flex flex-col">
+                
+                {/* Step 0: Enter Expense Report Form */}
+                {modalStep === 0 && (
+                  <div className="p-6 lg:p-8 flex flex-col h-full">
+                    <div className="flex items-center gap-3 mb-6">
+                      <button
+                        type="button"
+                        onClick={() => setIsModalOpen(false)}
+                        className="rounded-full border border-slate-200 p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Select User</label>
-                        <select
-                          value={newEmployee}
-                          onChange={(e) => setNewEmployee(e.target.value)}
-                          required
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
-                        >
-                          <option value="">Select User</option>
-                          {reports.map((report) => (
-                            <option key={report.id} value={report.employee}>
-                              {report.employee}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Select a category</label>
-                        <select
-                          value={newCategory}
-                          onChange={(e) => setNewCategory(e.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
-                        >
-                          <option value="Travel">Travel</option>
-                          <option value="Meals">Meals</option>
-                          <option value="Supplies">Supplies</option>
-                          <option value="Software">Software</option>
-                          <option value="Other">Other</option>
-                        </select>
+                        <h2 className="text-2xl font-bold text-slate-900">Enter expense report</h2>
+                        <p className="text-sm text-slate-500 mt-1">Complete the form below to submit the expense report.</p>
                       </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">$ Enter Amount</label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <DollarSign className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
+                    <form onSubmit={handleCreateReport} className="space-y-4 flex-1 overflow-y-auto pr-1">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Select User</label>
+                          <select
+                            value={newEmployee}
+                            onChange={(e) => setNewEmployee(e.target.value)}
                             required
-                            value={newAmount}
-                            onChange={(e) => setNewAmount(e.target.value)}
-                            placeholder="120.50"
-                            className="w-full rounded-2xl border border-slate-200 bg-slate-100 pl-10 pr-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none"
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+                          >
+                            <option value="">Select User</option>
+                            {reports.map((report) => (
+                              <option key={report.id} value={report.employee}>
+                                {report.employee}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Select a category</label>
+                          <select
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+                          >
+                            <option value="Travel">Travel</option>
+                            <option value="Meals">Meals</option>
+                            <option value="Supplies">Supplies</option>
+                            <option value="Software">Software</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">$ Enter Amount</label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                              <DollarSign className="h-4 w-4" />
+                            </div>
+                            <input
+                              type="text"
+                              required
+                              value={newAmount}
+                              onChange={(e) => setNewAmount(e.target.value)}
+                              placeholder="120.50"
+                              className="w-full rounded-2xl border border-slate-200 bg-slate-100 pl-10 pr-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Enter Date</label>
+                          <input
+                            type="date"
+                            required
+                            value={newDate}
+                            onChange={(e) => setNewDate(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Enter Date</label>
-                        <input
-                          type="date"
-                          required
-                          value={newDate}
-                          onChange={(e) => setNewDate(e.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+                        <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Add a description</label>
+                        <textarea
+                          value={newDescription}
+                          onChange={(e) => setNewDescription(e.target.value)}
+                          rows={3}
+                          placeholder="Enter expense description"
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none resize-none"
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 mb-2">Add a description</label>
-                      <textarea
-                        value={newDescription}
-                        onChange={(e) => setNewDescription(e.target.value)}
-                        rows={4}
-                        placeholder="Enter expense description"
-                        className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 focus:border-[#0b73d8] focus:ring-2 focus:ring-blue-100 outline-none resize-none"
-                      />
-                    </div>
+                      <div className="grid gap-4 md:grid-cols-2 mt-4">
+                        <button
+                          type="button"
+                          className="flex items-center gap-3 rounded-3xl bg-blue-600/5 px-5 py-3 text-slate-900 hover:bg-blue-600/10 transition-colors"
+                        >
+                          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#0b73d8] text-white">
+                            <Paperclip className="h-5 w-5" />
+                          </span>
+                          <div className="text-left">
+                            <p className="text-sm font-semibold">Attach a document</p>
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleScanClick}
+                          className="flex items-center gap-3 rounded-3xl bg-blue-600/5 px-5 py-3 text-slate-900 hover:bg-blue-600/10 transition-colors"
+                        >
+                          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#0b73d8] text-white">
+                            <Scan className="h-5 w-5" />
+                          </span>
+                          <div className="text-left">
+                            <p className="text-sm font-semibold">Scan your report</p>
+                          </div>
+                        </button>
+                      </div>
 
-                    <div className="grid gap-4 md:grid-cols-2 mt-4">
+                      <div className="grid grid-cols-2 gap-4 mt-6">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewEmployee('')
+                            setNewCategory('Travel')
+                            setNewAmount('')
+                            setNewDate('')
+                            setNewDescription('')
+                            setNewStatus('Pending')
+                          }}
+                          className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          type="submit"
+                          className="rounded-2xl bg-[#0b73d8] px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* Step 1: Scanning Progress */}
+                {modalStep === 1 && (
+                  <div className="flex flex-col h-full">
+                    <div className="bg-slate-50 px-6 py-5 flex items-center gap-3 border-b border-slate-100">
                       <button
                         type="button"
-                        className="flex items-center gap-3 rounded-3xl bg-blue-600/5 px-5 py-4 text-slate-900 hover:bg-blue-600/10 transition-colors"
+                        onClick={() => setModalStep(0)}
+                        className="rounded-full border border-slate-200 bg-white p-2 text-[#0b73d8] hover:bg-slate-50 transition-colors"
                       >
-                        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0b73d8] text-white">
-                          <Paperclip className="h-5 w-5" />
-                        </span>
-                        <div className="text-left">
-                          <p className="text-sm font-semibold">Attach a document</p>
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <p className="text-lg font-bold text-slate-900">Receipt Scanner</p>
+                    </div>
+                    <div className="flex-1 p-8 bg-slate-50 flex flex-col items-center justify-center">
+                      <div className="w-full max-w-md rounded-[2.5rem] bg-slate-200 p-8 flex items-center justify-center">
+                        <div className="relative h-48 w-48 rounded-[2rem] border-2 border-slate-300 bg-white shadow-inner flex items-center justify-center overflow-hidden">
+                           {/* Animated scanning line */}
+                           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-400/20 to-transparent animate-scan" />
+                           
+                           <div className="relative h-32 w-32 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 flex flex-col gap-2">
+                             <div className="h-2 w-20 rounded-full bg-blue-500/40" />
+                             <div className="h-2 w-16 rounded-full bg-slate-200" />
+                             <div className="h-2 w-24 rounded-full bg-slate-200" />
+                             <div className="h-2 w-12 rounded-full bg-slate-200" />
+                             <div className="absolute bottom-4 right-4 h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                               <Scan className="h-4 w-4 text-blue-500" />
+                             </div>
+                           </div>
+
+                           <div className="absolute left-4 top-4 h-3 w-3 border-t-2 border-l-2 border-blue-500" />
+                           <div className="absolute right-4 top-4 h-3 w-3 border-t-2 border-r-2 border-blue-500" />
+                           <div className="absolute left-4 bottom-4 h-3 w-3 border-b-2 border-l-2 border-blue-500" />
+                           <div className="absolute right-4 bottom-4 h-3 w-3 border-b-2 border-r-2 border-blue-500" />
                         </div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleScanClick}
-                        className="flex items-center gap-3 rounded-3xl bg-blue-600/5 px-5 py-4 text-slate-900 hover:bg-blue-600/10 transition-colors"
-                      >
-                        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0b73d8] text-white">
-                          <Scan className="h-5 w-5" />
-                        </span>
-                        <div className="text-left">
-                          <p className="text-sm font-semibold">Scan your report</p>
+                      </div>
+                      <div className="mt-10 w-full max-w-md">
+                        <div className="h-3 w-full rounded-full bg-slate-200 overflow-hidden">
+                          <div className="h-full bg-[#0b73d8] w-3/4 animate-pulse-fast" />
                         </div>
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setNewEmployee('')
-                          setNewCategory('Travel')
-                          setNewAmount('')
-                          setNewDate('')
-                          setNewDescription('')
-                          setNewStatus('Pending')
-                        }}
-                        className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        Reset
-                      </button>
-                      <button
-                        type="submit"
-                        className="rounded-2xl bg-[#0b73d8] px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isScanPopupOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
-              <div className="w-full max-w-3xl rounded-[2rem] bg-white shadow-[0_30px_80px_rgba(15,23,42,0.12)] border border-slate-200 overflow-hidden">
-                <div className="bg-slate-100 px-5 py-4 flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="rounded-full border border-slate-300 bg-white p-2 text-[#0b73d8]"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <p className="text-lg font-semibold text-slate-900">Receipt Scanner</p>
-                </div>
-                <div className="p-5 md:p-6 bg-slate-100">
-                  <div className="mx-auto max-w-3xl rounded-[2rem] bg-slate-200 p-6 md:p-8">
-                    <div className="mx-auto flex h-64 w-full max-w-2xl items-center justify-center rounded-[2rem] bg-white shadow-sm border border-slate-200">
-                      <div className="relative h-40 w-40 rounded-[1.5rem] border border-slate-200 bg-slate-100">
-                        <div className="absolute inset-0 rounded-[1.5rem] bg-white" />
-                        <div className="absolute left-4 top-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
-                        <div className="absolute right-4 top-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
-                        <div className="absolute left-4 bottom-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
-                        <div className="absolute right-4 bottom-4 h-2.5 w-16 rounded-full bg-[#0b73d8]" />
-                        <div className="absolute inset-x-0 top-1/2 h-1.5 bg-[#0b73d8] mx-6 rounded-full" />
-                        <div className="absolute inset-x-0 top-1/3 h-0.5 bg-slate-300 mx-6 rounded-full" />
-                        <div className="absolute inset-x-0 top-2/3 h-0.5 bg-slate-300 mx-6 rounded-full" />
+                        <p className="mt-4 text-center text-base font-bold text-slate-600 tracking-wide uppercase">Scanning Receipt...</p>
+                        <p className="mt-1 text-center text-sm text-slate-400">Please wait while we process the data</p>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-5">
-                    <div className="rounded-full bg-slate-200 p-1">
-                      <div className="h-3 rounded-full bg-[#0b73d8] w-1/4 transition-all duration-300" />
+                )}
+
+                {/* Step 2: Final Receipt Preview */}
+                {modalStep === 2 && (
+                  <div className="flex flex-col h-full">
+                    <div className="bg-white px-6 py-5 flex items-center gap-3 border-b border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setModalStep(1)}
+                        className="rounded-full border border-slate-200 bg-white p-2 text-[#0b73d8] hover:bg-slate-50 transition-colors"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <p className="text-xl font-bold text-slate-900">Receipt Scanner</p>
                     </div>
-                    <p className="mt-3 text-center text-sm font-semibold text-slate-600">25%</p>
+
+                    <div className="flex-1 p-8 bg-slate-50/50 flex flex-col items-center">
+                      {/* Central Box showing scanned data */}
+                      <div className="w-full max-w-sm rounded-[2.5rem] bg-white border border-slate-200 shadow-xl overflow-hidden flex flex-col">
+                        <div className="h-48 bg-slate-100 flex items-center justify-center p-6">
+                           <div className="w-full h-full rounded-2xl bg-white border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                              <FileSpreadsheet className="h-12 w-12 mb-2 opacity-20" />
+                              <p className="text-xs font-semibold uppercase tracking-wider">Scanned Document</p>
+                           </div>
+                        </div>
+                        <div className="p-6 space-y-4">
+                          <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Category</span>
+                            <span className="text-sm font-bold text-slate-900 bg-blue-50 px-3 py-1 rounded-full text-blue-700">{newCategory || 'Travel'}</span>
+                          </div>
+                          <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Amount</span>
+                            <span className="text-lg font-black text-[#0b73d8]">{newAmount ? (newAmount.startsWith('$') ? newAmount : `$${newAmount}`) : '$120.50'}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Date</span>
+                            <span className="text-sm font-bold text-slate-900">{newDate || '12 May 2026'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Area: Round Buttons */}
+                      <div className="mt-8 flex items-center gap-6">
+                        <div className="flex flex-col items-center gap-2">
+                          <button
+                            onClick={() => setModalStep(1)}
+                            className="h-14 w-14 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all group"
+                          >
+                            <RefreshCcw className="h-6 w-6 group-hover:rotate-180 transition-transform duration-500" />
+                          </button>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rescan</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setNewAmount('')
+                              setNewDate('')
+                              setModalStep(0)
+                            }}
+                            className="h-14 w-14 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-rose-600 hover:border-rose-200 transition-all"
+                          >
+                            <Trash2 className="h-6 w-6" />
+                          </button>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Delete</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <button
+                            onClick={() => setModalStep(0)}
+                            className="h-14 w-14 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all"
+                          >
+                            <Edit3 className="h-6 w-6" />
+                          </button>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Edit</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer: Save Button */}
+                    <div className="p-6 bg-white border-t border-slate-100 flex justify-center">
+                      <button
+                        onClick={handleCreateReport}
+                        className="w-full max-w-sm rounded-2xl bg-[#0b73d8] py-4 text-base font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                      >
+                        Save Receipt
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -660,3 +765,4 @@ export default function ExpenseReport() {
     </div>
   )
 }
+

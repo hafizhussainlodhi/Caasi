@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@layer utilities {
+  @keyframes scan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+  }
+  .animate-scan {
+    animation: scan 2s linear infinite;
+  }
+  
+  @keyframes pulse-fast {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .animate-pulse-fast {
+    animation: pulse-fast 0.8s ease-in-out infinite;
+  }
+}

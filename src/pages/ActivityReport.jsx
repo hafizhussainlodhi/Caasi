@@ -113,6 +113,7 @@ export default function ActivityReport() {
   const [sortOpen, setSortOpen] = useState(false)
   const [sortBy, setSortBy] = useState('Name (A-Z)') // 'Name (A-Z)', 'Newest Date', 'Oldest Date'
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [actionOpenId, setActionOpenId] = useState(null)
 
   // Pagination current page state
   const [currentPage, setCurrentPage] = useState(1)
@@ -332,10 +333,49 @@ export default function ActivityReport() {
                             {report.status}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-center">
-                          <button className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-xl hover:bg-slate-50 inline-flex items-center justify-center cursor-pointer">
+                        <td className="py-4 px-6 text-center relative">
+                          <button
+                            aria-label="Actions"
+                            onClick={() => setActionOpenId((prev) => (prev === report.id ? null : report.id))}
+                            className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-xl hover:bg-slate-50 inline-flex items-center justify-center gap-1 cursor-pointer"
+                          >
                             <MoreHorizontal className="h-5 w-5" />
+                            <ChevronDown className="h-4 w-4 text-slate-400" />
                           </button>
+
+                          {actionOpenId === report.id && (
+                            <div className="absolute right-3 top-full mt-2 w-44 rounded-2xl bg-white border border-slate-100 shadow-lg py-2 z-50">
+                              <button
+                                onClick={() => {
+                                  alert(`Viewing ${report.name}`)
+                                  setActionOpenId(null)
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => {
+                                  alert(`Editing ${report.name}`)
+                                  setActionOpenId(null)
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Delete ${report.name}?`)) {
+                                    setReports((prev) => prev.filter((r) => r.id !== report.id))
+                                  }
+                                  setActionOpenId(null)
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )
